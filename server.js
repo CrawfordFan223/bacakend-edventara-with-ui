@@ -14,6 +14,8 @@ app.get('/', (req, res) => {
 const authRoutes = require('./routes/auth.js');
 app.use('/api/auth', authRoutes);
 
+const pool = require('./db/connection');
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
