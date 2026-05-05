@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const pool = require('../db/connection');
 
@@ -9,6 +9,10 @@ router.post('/register', async (req, res) => {
   const { first_name, last_name, email, password, invite_code } = req.body;
 
   try {
+    if (!first_name || !last_name || !email || !password || !invite_code) {
+      return res.status(400).json({ message: 'All required fields must be provided' });
+    }
+
     // 1. Validate invite code
     const [codes] = await pool.query(
       `SELECT * FROM invite_codes 
@@ -67,11 +71,20 @@ router.post('/login', async (req, res) => {
   const { email, password, school_id } = req.body;
 
   try {
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
+    }
+
     // 1. Find user
-    const [users] = await pool.query(
-      'SELECT * FROM users WHERE email = ? AND school_id = ?',
-      [email, school_id]
-    );
+    const [users] = school_id
+      ? await pool.query(
+          'SELECT * FROM users WHERE email = ? AND school_id = ?',
+          [email, school_id]
+        )
+      : await pool.query(
+          'SELECT * FROM users WHERE email = ?',
+          [email]
+        );
 
     if (users.length === 0) {
       return res.status(401).json({ message: 'Invalid email or password' });
@@ -90,7 +103,9 @@ router.post('/login', async (req, res) => {
     }
 
     // 4. Check password
-    const validPassword = await bcrypt.compare(password, user.password_hash);
+    const validPassword = user.password_hash
+      ? await bcrypt.compare(password, user.password_hash)
+      : false;
     if (!validPassword) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }

@@ -11,8 +11,15 @@ app.get('/', (req, res) => {
   res.send('Server running');
 });
 
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
+
 const authRoutes = require('./routes/auth.js');
 app.use('/api/auth', authRoutes);
+
+const schoolRoutes = require('./routes/school.js');
+app.use('/api/school', schoolRoutes);
 
 const pool = require('./db/connection');
 
