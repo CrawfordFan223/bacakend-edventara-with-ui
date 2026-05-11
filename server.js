@@ -21,6 +21,12 @@ app.use('/api/auth', authRoutes);
 const schoolRoutes = require('./routes/school.js');
 app.use('/api/school', schoolRoutes);
 
+const eventRoutes = require('./routes/events.js');
+app.use('/api/events', eventRoutes);
+
+const aiRoutes = require('./routes/ai.js');
+app.use('/api/ai', aiRoutes);
+
 const pool = require('./db/connection');
 
 const PORT = process.env.PORT || 5000;
